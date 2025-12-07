@@ -41,6 +41,12 @@ function setupEventListeners() {
     // Admin buttons
     createTopicBtn.addEventListener('click', () => openModal(createTopicModal));
     viewAuditBtn.addEventListener('click', showAuditLog);
+    
+    // User management button (if exists)
+    const viewUsersBtn = document.getElementById('viewUsersBtn');
+    if (viewUsersBtn) {
+        viewUsersBtn.addEventListener('click', showUserManagement);
+    }
 
     // Search
     searchBtn.addEventListener('click', () => loadTopics(searchInput.value));
@@ -333,6 +339,10 @@ async function deleteMessage(id) {
 function showTopicsList() {
     topicDetails.style.display = 'none';
     auditLog.style.display = 'none';
+    const userManagement = document.getElementById('userManagement');
+    if (userManagement) {
+        userManagement.style.display = 'none';
+    }
     topicsList.style.display = 'block';
     document.querySelector('.search-box').style.display = 'flex';
     if (Auth.isAdmin()) {
@@ -399,4 +409,76 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+// User Management
+async function showUserManagement() {
+    currentView = 'users';
+
+    topicsList.style.display = 'none';
+    topicDetails.style.display = 'none';
+    adminPanel.style.display = 'none';
+    document.querySelector('.search-box').style.display = 'none';
+    
+    let userManagement = document.getElementById('userManagement');
+    if (!userManagement) {
+        userManagement = document.createElement('div');
+        userManagement.id = 'userManagement';
+        userManagement.innerHTML = `
+            <button id="backFromUsersBtn" class="btn">← Назад</button>
+            <h2>Управление пользователями</h2>
+            <div id="usersList"></div>
+        `;
+        document.querySelector('main').appendChild(userManagement);
+        
+        document.getElementById('backFromUsersBtn').addEventListener('click', () => {
+            currentView = 'topics';
+            showTopicsList();
+            userManagement.style.display = 'none';
+        });
+    }
+    userManagement.style.display = 'block';
+
+    try {
+        const users = await API.getAllUsers();
+        displayUsers(users);
+    } catch (error) {
+        showMessage('Ошибка загрузки пользователей: ' + error.message, 'error');
+    }
+}
+
+function displayUsers(users) {
+    const usersList = document.getElementById('usersList');
+    usersList.innerHTML = '';
+
+    if (users.length === 0) {
+        usersList.innerHTML = '<p>Пользователи не найдены</p>';
+        return;
+    }
+
+    users.forEach(user => {
+        const card = document.createElement('div');
+        card.className = 'audit-entry';
+        card.innerHTML = `
+            <strong>${escapeHtml(user.username)}</strong> (${escapeHtml(user.email)})
+            <br>Роль: <span style="color: ${user.role === 'Admin' ? '#e74c3c' : '#3498db'}">${user.role}</span>
+            <br>Зарегистрирован: ${new Date(user.createdAt).toLocaleString('ru-RU')}
+            ${user.role !== 'Admin' ? `
+                <br><button class="btn btn-primary" onclick="promoteUser(${user.id}, '${escapeHtml(user.username)}')">Сделать администратором</button>
+            ` : ''}
+        `;
+        usersList.appendChild(card);
+    });
+}
+
+async function promoteUser(userId, username) {
+    if (!confirm(`Сделать пользователя "${username}" администратором?`)) return;
+
+    try {
+        await API.promoteToAdmin(userId);
+        showMessage(`Пользователь "${username}" теперь администратор!`, 'success');
+        showUserManagement(); // Refresh the list
+    } catch (error) {
+        showMessage(error.message, 'error');
+    }
 }

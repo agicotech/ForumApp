@@ -91,6 +91,39 @@ public class AuthController : ControllerBase
 
         return Ok(new { message = "Пароль успешно изменен" });
     }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPost("promote-to-admin/{userId}")]
+    public async Task<IActionResult> PromoteToAdmin(int userId)
+    {
+        var adminIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+        if (adminIdClaim == null || !int.TryParse(adminIdClaim.Value, out int adminId))
+            return Unauthorized();
+
+        var success = await _authService.PromoteToAdminAsync(userId);
+
+        if (!success)
+            return BadRequest(new { message = "Не удалось повысить пользователя до администратора" });
+
+        await _auditService.LogActionAsync(adminId, "PromoteToAdmin", "User", userId, $"User {userId} promoted to Admin");
+
+        return Ok(new { message = "Пользователь успешно повышен до администратора" });
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpGet("users")]
+    public async Task<IActionResult> GetAllUsers()
+    {
+        var users = await _authService.GetAllUsersAsync();
+        return Ok(users.Select(u => new
+        {
+            id = u.Id,
+            username = u.Username,
+            email = u.Email,
+            role = u.Role.ToString(),
+            createdAt = u.CreatedAt
+        }));
+    }
 }
 
 public record RegisterRequest(string Username, string Email, string Password);

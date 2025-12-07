@@ -105,4 +105,15 @@ class API {
     static async getAuditLogs() {
         return this.request('/audit');
     }
+
+    // User management endpoints
+    static async getAllUsers() {
+        return this.request('/auth/users');
+    }
+
+    static async promoteToAdmin(userId) {
+        return this.request(`/auth/promote-to-admin/${userId}`, {
+            method: 'POST'
+        });
+    }
 }

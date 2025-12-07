@@ -71,6 +71,26 @@ public class AuthService
         return true;
     }
 
+    public async Task<bool> PromoteToAdminAsync(int userId)
+    {
+        var user = await _context.Users.FindAsync(userId);
+
+        if (user == null)
+        {
+            return false;
+        }
+
+        user.Role = UserRole.Admin;
+        await _context.SaveChangesAsync();
+
+        return true;
+    }
+
+    public async Task<List<User>> GetAllUsersAsync()
+    {
+        return await _context.Users.OrderBy(u => u.CreatedAt).ToListAsync();
+    }
+
     private string GenerateJwtToken(User user)
     {
         var jwtSettings = _configuration.GetSection("JwtSettings");

@@ -1,0 +1,22 @@
+[Unit]
+Description=ForumApp ASP.NET Core Web Application
+After=network.target
+
+[Service]
+Type=notify
+# Change this to your application directory
+WorkingDirectory=/path/to/ForumApp/publish
+# Change this to your application DLL path
+ExecStart=/usr/bin/dotnet /path/to/ForumApp/publish/ForumApp.dll
+Restart=always
+RestartSec=10
+KillSignal=SIGINT
+SyslogIdentifier=forumapp
+# Change this to your username
+User=your-username
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
+Environment=ASPNETCORE_URLS=http://0.0.0.0:5238
+
+[Install]
+WantedBy=multi-user.target
