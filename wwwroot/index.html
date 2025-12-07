@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тематический Форум</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Тематический Форум</h1>
+            <nav id="nav">
+                <button id="loginBtn" class="btn">Вход</button>
+                <button id="registerBtn" class="btn">Регистрация</button>
+                <span id="userInfo" style="display:none;">
+                    <span id="username"></span>
+                    <button id="changePasswordBtn" class="btn">Сменить пароль</button>
+                    <button id="logoutBtn" class="btn">Выход</button>
+                </span>
+            </nav>
+        </header>
+
+        <main>
+            <!-- Поиск -->
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Поиск тем...">
+                <button id="searchBtn" class="btn">Поиск</button>
+            </div>
+
+            <!-- Кнопка создания темы (только для админа) -->
+            <div id="adminPanel" style="display:none;">
+                <button id="createTopicBtn" class="btn btn-primary">Создать тему</button>
+                <button id="viewAuditBtn" class="btn">Журнал действий</button>
+            </div>
+
+            <!-- Список тем -->
+            <div id="topicsList"></div>
+
+            <!-- Детали темы и сообщения -->
+            <div id="topicDetails" style="display:none;">
+                <button id="backToTopicsBtn" class="btn">← Назад к темам</button>
+                <div id="topicInfo"></div>
+                <div id="messagesList"></div>
+                <div id="addMessageForm" style="display:none;">
+                    <h3>Добавить сообщение</h3>
+                    <textarea id="messageText" placeholder="Введите ваше сообщение..." rows="4"></textarea>
+                    <button id="submitMessageBtn" class="btn btn-primary">Отправить</button>
+                </div>
+            </div>
+
+            <!-- Журнал (только для админа) -->
+            <div id="auditLog" style="display:none;">
+                <button id="backFromAuditBtn" class="btn">← Назад</button>
+                <h2>Журнал действий</h2>
+                <div id="auditList"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Модальные окна -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Вход</h2>
+            <form id="loginForm">
+                <input type="text" id="loginUsername" placeholder="Имя пользователя" required>
+                <input type="password" id="loginPassword" placeholder="Пароль" required>
+                <button type="submit" class="btn btn-primary">Войти</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Регистрация</h2>
+            <form id="registerForm">
+                <input type="text" id="regUsername" placeholder="Имя пользователя" required>
+                <input type="email" id="regEmail" placeholder="Email" required>
+                <input type="password" id="regPassword" placeholder="Пароль" required>
+                <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="changePasswordModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Смена пароля</h2>
+            <form id="changePasswordForm">
+                <input type="password" id="oldPassword" placeholder="Старый пароль" required>
+                <input type="password" id="newPassword" placeholder="Новый пароль" required>
+                <button type="submit" class="btn btn-primary">Изменить</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="createTopicModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Создать тему</h2>
+            <form id="createTopicForm">
+                <input type="text" id="topicTitle" placeholder="Название темы" required>
+                <textarea id="topicDescription" placeholder="Описание темы" rows="4"></textarea>
+                <button type="submit" class="btn btn-primary">Создать</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/app.js"></script>
+</body>
+</html>
